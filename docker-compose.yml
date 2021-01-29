@@ -1,0 +1,22 @@
+version: '3.4'
+
+networks:
+  proxy:
+    driver: bridge
+
+services:
+  proxy:
+    ports:
+      - 80:8080
+    build:
+      context: './backend'
+      dockerfile: 'Dockerfile'
+    environment:
+      ENABLE_RESPONSE_LOG: 'true'
+    networks:
+      - proxy
+    healthcheck:
+        test: ["CMD", "node" , "healthcheck.js"]
+        timeout: 3s
+        retries: 20
+    restart: on-failure

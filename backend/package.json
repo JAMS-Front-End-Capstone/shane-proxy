@@ -6,8 +6,8 @@
   "scripts": {
     "preinstall": "npm install nodemon -g",
     "test": "mocha spec/index.spec.js",
-    "start": "node index",
-    "startdev": "nodemon /usr/src/app/dev-code/index.js"
+    "start": "node index.js",
+    "startdev": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
