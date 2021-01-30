@@ -4,11 +4,11 @@ const views = require(path.join(__dirname, 'views.js'));
 const responseLoggingEnabled = process.env.ENABLE_RESPONSE_LOG || false;
 
 const API_ENDPOINT_MAP = {
-  'attract': 'http://localhost:3002',
-  'ratings': 'http://localhost:3003',
-  'reviews': 'http://localhost:3003',
-  'q-and-a': 'http://localhost:3004',
-  'related': 'http://localhost:3005'
+  'attract': `http://${process.env.ATTRACTION_API_DNS_NAME}:3002`,
+  'ratings': `http://${process.env.REVIEWS_API_DNS_NAME}:3003`,
+  'reviews': `http://${process.env.REVIEWS_API_DNS_NAME}:3003`,
+  'q-and-a': `http://${process.env.QANDA_API_DNS_NAME}:3004`,
+  'related': `http://${process.env.RELATED_API_DNS_NAME}:3005`
 };
 
 const handleError = (req, res, next, error) => {
