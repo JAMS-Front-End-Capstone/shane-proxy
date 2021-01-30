@@ -151,7 +151,7 @@ services:
     container_name: attraction-overview-db
     image: mongo
     build:
-      context: ''./module1/database'
+      context: './module1/database'
       dockerfile: 'Dockerfile'
     ports:
       - 33217:27017
