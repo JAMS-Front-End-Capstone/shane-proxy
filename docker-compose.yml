@@ -7,6 +7,8 @@ networks:
     driver: bridge
   proxy:
     driver: bridge
+  attraction:
+    driver: bridge
 
 volumes:
   mongo-data:
@@ -21,7 +23,7 @@ services:
       dockerfile: 'Dockerfile'
     environment:
       ENABLE_RESPONSE_LOG: 'true'
-      ATTRACTION_API_DNS_NAME: 'unknown'
+      ATTRACTION_API_DNS_NAME: 'attraction-overview-server'
       REVIEWS_API_DNS_NAME: 'reviews-api'
       QANDA_API_DNS_NAME: 'q-and-a-api'
       RELATED_API_DNS_NAME: 'related-api'
@@ -31,6 +33,7 @@ services:
       - q-and-a-api
       - related-api
       - reviews-api
+      - attraction-overview-server
     healthcheck:
         test: ["CMD", "node" , "healthcheck.js"]
         timeout: 3s
@@ -131,3 +134,27 @@ services:
       - mongo-data:/data/db
     restart: on-failure
 
+  attraction-overview-server:
+    ports:
+      - 3002:3002
+    build:
+      context: './module1'
+      dockerfile: 'Dockerfile'
+    networks:
+      - attraction
+      - proxy
+    depends_on:
+      - attraction-overview-db
+    restart: on-failure
+
+  attraction-overview-db:
+    container_name: attraction-overview-db
+    image: mongo
+    build:
+      context: ''./module1/database'
+      dockerfile: 'Dockerfile'
+    ports:
+      - 33217:27017
+    networks:
+      - attraction
+    restart: on-failure
