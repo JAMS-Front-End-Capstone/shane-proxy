@@ -1,22 +1,135 @@
 version: '3.4'
 
 networks:
+  q-and-a:
+    driver: bridge
+  related:
+    driver: bridge
   proxy:
     driver: bridge
+  review:
+    driver: bridge
+volumes:
+  mongo-data:
+    driver: local
 
 services:
   proxy:
     ports:
       - 80:8080
     build:
-      context: './backend'
+      context: './shane-proxy/backend'
       dockerfile: 'Dockerfile'
     environment:
       ENABLE_RESPONSE_LOG: 'true'
+      ATTRACTION_API_DNS_NAME: 'unknown'
+      REVIEWS_API_DNS_NAME: 'reviews-api'
+      QANDA_API_DNS_NAME: 'q-and-a-api'
+      RELATED_API_DNS_NAME: 'related-api'
     networks:
       - proxy
+    depends_on:
+      - q-and-a-api
+      - related-api
+      - review-api
     healthcheck:
         test: ["CMD", "node" , "healthcheck.js"]
         timeout: 3s
         retries: 20
     restart: on-failure
+
+  q-and-a-api:
+    ports:
+      - 3004:3004
+    build:
+      context: './shane/q-and-a'
+      dockerfile: 'Dockerfile'
+    environment:
+      databaseURI: 'mongodb://q-and-a-database/qanda'
+      databaseUser: 'student'
+      databasePass: 'student'
+    networks:
+      - q-and-a
+      - proxy
+    depends_on:
+      - q-and-a-database
+    healthcheck:
+        test: ["CMD", "node" , "healthcheck.js"]
+        timeout: 3s
+        retries: 20
+    restart: on-failure
+
+  q-and-a-database:
+    ports:
+      - 33417:27017
+    build:
+      context: './shane/q-and-a/database'
+      dockerfile: 'Dockerfile'
+    networks:
+      - q-and-a
+    healthcheck:
+        test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/csv --quiet
+        timeout: 5s
+        retries: 20
+    restart: on-failure
+
+  related-api:
+    ports:
+      - 3005:3005
+    build:
+      context: './shane/module4'
+      dockerfile: 'Dockerfile'
+    networks:
+      - related
+      - proxy
+    environment:
+      databaseURI: 'mongodb://related-database/related'
+      databaseUser: 'student'
+      databasePass: 'student'
+    depends_on:
+      - related-database
+    healthcheck:
+        test: ["CMD", "node" , "healthcheck.js"]
+        timeout: 3s
+        retries: 20
+    restart: on-failure
+
+  related-database:
+    ports:
+      - 33517:27017
+    build:
+      context: './shane/module4/database'
+      dockerfile: 'Dockerfile'
+    networks:
+      - related
+    healthcheck:
+        test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/csv --quiet
+        timeout: 5s
+        retries: 20
+    restart: on-failure
+
+  reviews-api:
+    build:
+      context: './review/'
+      dockerfile: 'Dockerfile'
+    ports:
+      - '3003:3003'
+    networks:
+      - review
+      - proxy
+    depends_on:
+      - mongo
+    restart: on-failure
+
+  mongo:
+    build:
+      context: './review/database/'
+      dockerfile: 'Dockerfile'
+    ports:
+      - '33317:27017'
+    networks:
+      - review
+    volumes:
+      - mongo-data:/data/db
+    restart: on-failure
+
