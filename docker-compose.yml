@@ -9,6 +9,8 @@ networks:
     driver: bridge
   attraction:
     driver: bridge
+  review:
+    driver: bridge
 
 volumes:
   mongo-data:
