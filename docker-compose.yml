@@ -7,8 +7,7 @@ networks:
     driver: bridge
   proxy:
     driver: bridge
-  review:
-    driver: bridge
+
 volumes:
   mongo-data:
     driver: local
@@ -122,9 +121,8 @@ services:
     restart: on-failure
 
   mongo:
-    build:
-      context: './review/database/'
-      dockerfile: 'Dockerfile'
+    container_name: mongo
+    image: mongo
     ports:
       - '33317:27017'
     networks:
