@@ -31,7 +31,7 @@ services:
     depends_on:
       - q-and-a-api
       - related-api
-      - review-api
+      - reviews-api
     healthcheck:
         test: ["CMD", "node" , "healthcheck.js"]
         timeout: 3s
