@@ -6,10 +6,14 @@ const express = require('express');
 const app = express();
 
 const morgan = require('morgan');
-app.use(morgan('tiny', {
+const fs = require('fs');
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'httpaccess.log'), { flags: 'a' });
+app.use(morgan('combined', {
   skip: function (req, res) { return req.ip === '::ffff:127.0.0.1'; }, // prohibits logging of docker healthcheck requests
-  immediate: true
+  immediate: true,
+  stream: accessLogStream
 }));
+
 
 const cors = require('cors');
 app.use(cors());
